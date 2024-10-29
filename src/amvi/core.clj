@@ -1,4 +1,4 @@
-(ns amvi-compiler.core)
+(ns amvi.core)
 
 (defn foo
   "I don't do a whole lot."

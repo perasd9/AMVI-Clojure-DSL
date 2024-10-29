@@ -1,3 +1,3 @@
-# Introduction to amvi-compiler
+# Introduction to amvi
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)
