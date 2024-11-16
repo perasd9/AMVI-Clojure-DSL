@@ -1,4 +1,4 @@
-(ns amvi-compiler.core-test
+(ns amvi.core-test
   (:require [clojure.test :refer :all]
             [amvi-compiler.core :refer :all]))
 
