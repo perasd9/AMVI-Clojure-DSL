@@ -23,39 +23,29 @@
   `(defn ~name [~'value]
      (every? #(apply % [~'value]) ~rule-args)))
 
+
 ;; defining macro for type length validation
 (defmacro length-validation [min-length max-length]
   `(fn [~'value]
+     (println ~'value)
      (let [~'length (count ~'value)]
        (and (<= ~'length ~max-length)
             (>= ~'length ~min-length)))))
 
 
-
-(defmacro length-validation [min-length max-length]
-  (fn [value]
-    (let [length (count value)]
-      (and (<= length max-length)
-           (>= length min-length)))))
-
-
 ;; problems to solve with symbol for def-validation-type or def-validation because cannot resolve symbol for name and cannot rechange text for def special form in def-validation or df-val-type for example
-(defmacro def-validation [name & rules]
+(defmacro def-validation [name rules]
   `(def ~name
      (fn [~'value]
-       (every? #(apply % [~'value]) ~rules))))
+       (every? #(apply % [~'value]) [~rules]))))
 
-
-
-(defmacro def-validation [& rules]
+;; this macro is supposed to be used for inline function calling without binding name for macro produced function
+(defmacro def-validation [rules]
   `(fn [~'value]
-     (every? #(apply % [~'value]) ~rules)))
+     (every? #(apply % [~'value]) [~rules])))
 
 
-((def-validation validate-string-length (length-validation 5 10)))
+(def-validation validate-string-length (length-validation 5 10))
 
-((length-validation 5 10) "pera123")
+(validate-string-length "pera")
 
-(length-validation 5 10)
-
-(validate-string-length "pera123")
