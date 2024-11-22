@@ -20,32 +20,52 @@
 
 ;; defining marco which is supposed to make actual validation with the spcific rules
 (defmacro def-validation-type [name & rule-args]
+  "Macro for making functions with combination of rules."
   `(defn ~name [~'value]
      (every? #(apply % [~'value]) ~rule-args)))
 
-
-;; defining macro for type length validation
-(defmacro length-validation [min-length max-length]
-  `(fn [~'value]
-     (println ~'value)
-     (let [~'length (count ~'value)]
-       (and (<= ~'length ~max-length)
-            (>= ~'length ~min-length)))))
-
-
-;; problems to solve with symbol for def-validation-type or def-validation because cannot resolve symbol for name and cannot rechange text for def special form in def-validation or df-val-type for example
 (defmacro def-validation [name rules]
+  "Macro for making functions with combination of rules."
   `(def ~name
      (fn [~'value]
        (every? #(apply % [~'value]) [~rules]))))
 
 ;; this macro is supposed to be used for inline function calling without binding name for macro produced function
-(defmacro def-validation [rules]
+(defmacro def-validation-inline [rules]
+  "Macro for making functions with combination of rules without binding vars."
   `(fn [~'value]
      (every? #(apply % [~'value]) [~rules])))
 
+;; -----------------length validation making validators-----------------
 
-(def-validation validate-string-length (length-validation 5 10))
+;; defining macro for type length validation
+(defmacro length-validation [min-length max-length]
+  `(fn [~'value]
+     (let [~'length (count ~'value)]
+       (and (<= ~'length ~max-length)
+            (>= ~'length ~min-length)))))
 
-(validate-string-length "pera")
+
+;; (def-validation validate-string-length (length-validation 5 10))
+
+;; (validate-string-length "pera")
+
+;; defining macro for number range validation
+(defmacro number-range-validation [min-value max-value]
+  `(fn [~'value]
+     (and (<= ~'value ~max-value)
+          (>= ~'value ~min-value))))
+
+;; (def-validation validate-number-range (number-range-validation 10 100))
+
+;; (validate-number-range 50)
+
+(defmacro nil-validation []
+  `(fn [~'value]
+     (nil? ~'value)))
+
+;; (def-validation validate-nil (nil-validation))
+
+;; (validate-nil 1)
+
 
