@@ -89,7 +89,8 @@
      (let [~'item (some #{~'value} ~coll)]
        (not (nil? ~'item)))))
 
-(def users (list "mika" "pera"))
+
+;; (def users (list "mika" "pera"))
 
 ;; (def-validation validate-unique (unique-validation users))
 

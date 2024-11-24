@@ -7,3 +7,4 @@
        (fact "Word nice"
              (let [word "Nice"]
                (interpolation "Hello, %s" word)) => "Hello, Nice"))
+
