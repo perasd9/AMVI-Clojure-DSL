@@ -44,15 +44,18 @@
 ;; -----------------length checking validators-----------------
 ;; defining macro for type length validation
 (defmacro length-validation [min-length max-length]
-  `(fn [~'value]
-     (let [~'length (count ~'value)]
-       (and (<= ~'length ~max-length)
-            (>= ~'length ~min-length)))))
+  (if (and (number? min-length) (number? max-length))
+    `(fn [~'value]
+       (let [~'length (count ~'value)]
+         (and (<= ~'length ~max-length)
+              (>= ~'length ~min-length))))
+    (println (interpolation "Input parameters are not numbers in macro length-validation: %s, %s" min-length max-length))))
 
+(length-validation "asd" 10)
 
-;; (def-validation validate-string-length (length-validation 5 10))
+(def-validation validate-string-length (length-validation "asd" 10))
 
-;; (validate-string-length "pera")
+(validate-string-length "pera")
 
 ;; -----------------number range checking validators---------------------
 ;; defining macro for number range validation
