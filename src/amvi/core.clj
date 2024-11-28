@@ -43,29 +43,60 @@
 
 ;; -----------------length checking validators-----------------
 ;; defining macro for type length validation
-(defmacro length-validation [min-length max-length]
-  (if (and (number? min-length) (number? max-length) (> max-length min-length))
-    `(fn [~'value]
-       (let [~'length (count ~'value)]
-         (and (<= ~'length ~max-length)
-              (>= ~'length ~min-length))))
-    `(do
-       (throw
-        (IllegalArgumentException.
-         (interpolation "Input parameters must be numbers and 'max-length' must be greater than 'min-length' in macro 'length-validation': (%s, %s)" ~min-length ~max-length))))))
+(defmacro length-validation
+  ([min-length]
+   (if (number? min-length)
+     `(fn [~'value]
+        (let [~'length (count ~'value)]
+          (>= ~'length ~min-length)))
+     `(do
+        (throw
+         (IllegalArgumentException.
+          (interpolation "Input parameters must be numbers in macro 'length-validation': (%s)" ~min-length))))))
+
+  ([min-length max-length]
+   (if (and (number? min-length) (number? max-length) (> max-length min-length))
+     `(fn [~'value]
+        (let [~'length (count ~'value)]
+          (and (<= ~'length ~max-length)
+               (>= ~'length ~min-length))))
+     `(do
+        (throw
+         (IllegalArgumentException.
+          (interpolation "Input parameters must be numbers and 'max-length' must be greater than 'min-length' in macro 'length-validation': (%s, %s)" ~min-length ~max-length))))))
+
+  ([min-length max-length & _]
+   `(do
+      (throw
+       (IllegalArgumentException.
+        "You can provide only 1 or 2 arguments for 'length-validation'")))))
 
 
 ;; -----------------number range checking validators---------------------
 ;; defining macro for number range validation
-(defmacro number-range-validation [min-value max-value]
-  (if (and (number? min-value) (number? max-value) (> max-value min-value))
-    `(fn [~'value]
-       (and (<= ~'value ~max-value)
-            (>= ~'value ~min-value)))
-    `(do
-       (throw
-        (IllegalArgumentException.
-         (interpolation "Input parameters must be numbers and 'max-value' must be greater than 'min-value' in macro 'number-range-validation': (%s, %s)" ~min-value ~max-value))))))
+(defmacro number-range-validation
+  ([min-value]
+   (if (number? min-value)
+     `(fn [~'value]
+        (>= ~'value ~min-value))
+     `(do
+        (throw
+         (IllegalArgumentException.
+          (interpolation "Input parameters must be numbers'number-range-validation': (%s)" ~min-value))))))
+  ([min-value max-value]
+   (if (and (number? min-value) (number? max-value) (> max-value min-value))
+     `(fn [~'value]
+        (and (<= ~'value ~max-value)
+             (>= ~'value ~min-value)))
+     `(do
+        (throw
+         (IllegalArgumentException.
+          (interpolation "Input parameters must be numbers and 'max-value' must be greater than 'min-value' in macro 'number-range-validation': (%s, %s)" ~min-value ~max-value))))))
+  ([min-length max-length & _]
+   `(do
+      (throw
+       (IllegalArgumentException.
+        "You can provide only 1 or 2 arguments for 'number-range-validation'")))))
 
 
 ;; -----------------nil checking validators---------------------
@@ -95,4 +126,5 @@
        (throw
         (IllegalArgumentException.
          "Input parameter must be a collection in macro 'unique-validation'")))))
+
 

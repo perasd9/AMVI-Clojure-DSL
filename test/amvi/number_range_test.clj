@@ -21,4 +21,10 @@
                (validate-number-range 20) => (throws IllegalArgumentException)))
        (fact "Number range if input parameters are equal"
              (let [validate-number-range (def-validation-inline [(number-range-validation 100 100)])]
-               (validate-number-range 20) => (throws IllegalArgumentException))))
+               (validate-number-range 20) => (throws IllegalArgumentException)))
+       (fact "Number range if input parameter is just min value"
+             (let [validate-number-range (def-validation-inline [(number-range-validation 100)])]
+               (validate-number-range 120) => truthy))
+       (fact "Number range if input parameter is just max value"
+             (let [validate-number-range (def-validation-inline [(number-range-validation 0 120)])]
+               (validate-number-range 120) => truthy)))

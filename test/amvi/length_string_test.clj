@@ -24,4 +24,10 @@
                (validate-string-length "Test123") => (throws IllegalArgumentException)))
        (fact "String length if input parameters are equal"
              (let [validate-string-length (def-validation-inline [(length-validation 20 20)])]
-               (validate-string-length "Test123") => (throws IllegalArgumentException))))
+               (validate-string-length "Test123") => (throws IllegalArgumentException)))
+       (fact "String length if input parameter is just min length"
+             (let [validate-string-length (def-validation-inline [(length-validation 3)])]
+               (validate-string-length "Test123") => truthy))
+       (fact "String length if input parameter is just max length"
+             (let [validate-string-length (def-validation-inline [(length-validation 0 3)])]
+               (validate-string-length "Test123") => falsey)))
