@@ -27,19 +27,19 @@
 (defmacro def-validation [name rules]
   "Macro for making functions with combination of rules."
   (try
-    `(def ~name
-       (fn [~'value]
-         (if (contains? @~'validation-cache ~'value)
-           (do
-             (every? #(apply % [~'value]) ~rules)
-             (get @~'validation-cache ~'value))
-           (let [~'result (every? #(apply % [~'value]) ~rules)]
+    (let [rule-key (str rules)]
+      `(def ~name
+         (fn [~'value]
+           (if (contains? @~'validation-cache (str ~'value "-" ~rule-key))
              (do
-               (if (= (count @~'validation-cache) 3)
-                 (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
+               (get @~'validation-cache (str ~'value "-" ~rule-key)))
+             (let [~'result (every? #(apply % [~'value]) ~rules)]
                (do
-                 (swap! ~'validation-cache assoc-in [~'value] ~'result)
-                 (get @~'validation-cache ~'value)))))))
+                 (if (= (count @~'validation-cache) 3)
+                   (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
+                 (do
+                   (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
+                   (get @~'validation-cache (str ~'value "-" ~rule-key)))))))))
     (catch Exception e (println (.getMessage e)))))
 
 ;; this macro is supposed to be used for inline function calling without binding name for macro produced function
@@ -48,18 +48,19 @@
 (defmacro def-validation-inline [rules]
   "Macro for making functions with combination of rules without binding vars."
   (try
-    `(fn [~'value]
-       (if (contains? @~'validation-cache ~'value)
-         (do
-           (every? #(apply % [~'value]) ~rules)
-           (get @~'validation-cache ~'value))
-         (let [~'result (every? #(apply % [~'value]) ~rules)]
+    (let [rule-key (str rules)]
+      `(fn [~'value]
+         (if (contains? @~'validation-cache (str ~'value "-" ~rule-key))
            (do
-             (if (= (count @~'validation-cache) 3)
-               (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
+             (get @~'validation-cache (str ~'value "-" ~rule-key)))
+           (let [~'result (every? #(apply % [~'value]) ~rules)]
              (do
-               (swap! ~'validation-cache assoc-in [~'value] ~'result)
-               (get @~'validation-cache ~'value))))))
+               (if (= (count @~'validation-cache) 3)
+                 (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
+               (do
+                 (Thread/sleep 500)
+                 (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
+                 (get @~'validation-cache (str ~'value "-" ~rule-key))))))))
     (catch Exception e (println (.getMessage e)))))
 
 ;; for testing purpose in criterium
@@ -101,6 +102,7 @@
       (throw
        (IllegalArgumentException.
         "You can provide only 1 or 2 arguments for 'length-validation'")))))
+
 
 ;; -----------------number range checking validators---------------------
 ;; defining macro for number range validation
@@ -158,5 +160,3 @@
        (throw
         (IllegalArgumentException.
          "Input parameter must be a collection in macro 'unique-validation'")))))
-
-

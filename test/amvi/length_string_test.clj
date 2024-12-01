@@ -1,6 +1,7 @@
 (ns amvi.length-string-test
   (:require [amvi.core :refer :all]
-            [midje.sweet :refer :all]))
+            [midje.sweet :refer :all]
+            [criterium.core :refer :all]))
 
 (facts "String length test validation"
        (fact "String length between 5 and 10"
@@ -30,3 +31,9 @@
        (fact "String length if input parameter is just max length"
              (let [validate-string-length (def-validation-inline [(length-validation 0 3)])]
                (validate-string-length "Test123") => falsey)))
+
+(let [validate-string-length (def-validation-inline [(length-validation 5 10)])]
+  (quick-bench (validate-string-length "Test123")))
+
+(let [validate-string-length (def-validation-inline-without-cache [(length-validation 5 10)])]
+  (quick-bench (validate-string-length "Test123")))
