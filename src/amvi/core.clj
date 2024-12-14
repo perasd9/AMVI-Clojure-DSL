@@ -18,9 +18,9 @@
 (defn interpolatio-fun [s & args]
   (format s args))
 
-(interpolatio-fun "Hello, %s" word word)
+;; (interpolatio-fun "Hello, %s, %s" word word)
 
-(interpolation "Hello, %s you %s" word word)
+(interpolation "Hello, %s, %s" word word)
 
 
 ;; -----defining marco which is supposed to make actual validation with the spcific rules------
@@ -30,14 +30,14 @@
     (let [rule-key (str rules)]
       `(def ~name
          (fn [~'value]
-           (if (contains? @~'validation-cache (str ~'value "-" ~rule-key))
-             (do
-               (get @~'validation-cache (str ~'value "-" ~rule-key)))
-             (let [~'result (every? #(apply % [~'value]) ~rules)]
-               (do
+           (let [~'item (get @~'validation-cache (str ~'value "-" ~rule-key))]
+             (if (not (nil? ~'item))
+               ~'item
+               (let [~'result (every? #(apply % [~'value]) ~rules)]
                  (if (= (count @~'validation-cache) 3)
                    (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
                  (do
+                   (Thread/sleep 100)
                    (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
                    (get @~'validation-cache (str ~'value "-" ~rule-key)))))))))
     (catch Exception e (println (.getMessage e)))))
@@ -45,20 +45,20 @@
 ;; this macro is supposed to be used for inline function calling without binding name for macro produced function
 (def validation-cache (atom {}))
 
+
 (defmacro def-validation-inline [rules]
   "Macro for making functions with combination of rules without binding vars."
   (try
     (let [rule-key (str rules)]
       `(fn [~'value]
-         (if (contains? @~'validation-cache (str ~'value "-" ~rule-key))
-           (do
-             (get @~'validation-cache (str ~'value "-" ~rule-key)))
-           (let [~'result (every? #(apply % [~'value]) ~rules)]
-             (do
+         (let [~'item (get @~'validation-cache (str ~'value "-" ~rule-key))]
+           (if (not (nil? ~'item))
+             ~'item
+             (let [~'result (every? #(apply % [~'value]) ~rules)]
                (if (= (count @~'validation-cache) 3)
                  (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
                (do
-                 (Thread/sleep 500)
+                 (Thread/sleep 100)
                  (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
                  (get @~'validation-cache (str ~'value "-" ~rule-key))))))))
     (catch Exception e (println (.getMessage e)))))
@@ -68,6 +68,7 @@
   "Macro for making functions with combination of rules without binding vars."
   (try
     `(fn [~'value]
+       (Thread/sleep 100)
        (every? #(apply % [~'value]) ~rules))
     (catch Exception e (println (.getMessage e)))))
 
@@ -160,3 +161,5 @@
        (throw
         (IllegalArgumentException.
          "Input parameter must be a collection in macro 'unique-validation'")))))
+
+

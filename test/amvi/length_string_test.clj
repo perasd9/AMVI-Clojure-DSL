@@ -32,6 +32,7 @@
              (let [validate-string-length (def-validation-inline [(length-validation 0 3)])]
                (validate-string-length "Test123") => falsey)))
 
+;; here we can see that results of same validation value gives us better performance with caching that validation instead of every time validate
 (let [validate-string-length (def-validation-inline [(length-validation 5 10)])]
   (quick-bench (validate-string-length "Test123")))
 
