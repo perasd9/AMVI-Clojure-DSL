@@ -72,8 +72,8 @@
        (every? #(apply % [~'value]) ~rules))
     (catch Exception e (println (.getMessage e)))))
 
-;; -----------------length checking validators-----------------
-;; defining macro for type length validation
+
+;; -----------------length checking validator-----------------
 (defmacro length-validation
   ([min-length]
    (if (number? min-length)
@@ -105,8 +105,7 @@
         "You can provide only 1 or 2 arguments for 'length-validation'")))))
 
 
-;; -----------------number range checking validators---------------------
-;; defining macro for number range validation
+;; -----------------number range checking validator---------------------
 (defmacro number-range-validation
   ([min-value]
    (if (number? min-value)
@@ -134,13 +133,13 @@
         "You can provide only 1 or 2 arguments for 'number-range-validation'")))))
 
 
-;; -----------------nil checking validators---------------------
+;; -----------------nil checking validator---------------------
 (defmacro nil-validation []
   `(fn [~'value]
      (nil? ~'value)))
 
 
-;; ----------------regex validators--------------------
+;; ----------------regex validator--------------------
 (defmacro regex-validation [pattern]
   (if (= (type pattern) java.util.regex.Pattern)
     `(fn [~'value]
@@ -151,7 +150,7 @@
          "Input parameter must be a regex expression in macro 'regex-validation'")))))
 
 
-;; ------------------unique making validators------------------
+;; ------------------unique making validator------------------
 (defmacro unique-validation [coll]
   (if (coll? (eval coll))
     `(fn [~'value]
@@ -161,5 +160,37 @@
        (throw
         (IllegalArgumentException.
          "Input parameter must be a collection in macro 'unique-validation'")))))
+
+
+;; ------------------type validator--------------
+(defmacro type-validation [expected-type]
+  (if (= (type expected-type) java.lang.Class)
+    `(fn [~'value]
+       (instance? ~expected-type ~'value))
+    `(do
+       (throw
+        (IllegalArgumentException.
+         "Input parameter must be a type(java class) in macro 'type-validation'")))))
+
+
+;; ----------------------email validator-------------
+(defmacro email-validation []
+  `(fn [~'value]
+     (re-matches #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" ~'value)))
+
+
+
+(defmacro date-validation [before-date]
+  `(fn [~'value]
+     (let [parsed-date (try (java.text.SimpleDateFormat. "yyyy-MM-dd") .parse ~'value (catch Exception _ nil))]
+       (and parsed-date (.before parsed-date ~before-date)))))
+
+(def-validation valid [(type-validation String)])
+
+(type String)
+
+(def before-date ((java.text.SimpleDateFormat. "yyyy-MM-dd") .parse "2025-01-01"))
+((date-validation before-date) "2024-12-31") ;; true
+
 
 
