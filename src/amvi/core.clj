@@ -185,10 +185,6 @@
      (let [parsed-date (try (java.text.SimpleDateFormat. "yyyy-MM-dd") .parse ~'value (catch Exception _ nil))]
        (and parsed-date (.before parsed-date ~before-date)))))
 
-(def-validation valid [(type-validation String)])
-
-(type String)
-
 (def before-date ((java.text.SimpleDateFormat. "yyyy-MM-dd") .parse "2025-01-01"))
 ((date-validation before-date) "2024-12-31") ;; true
 
