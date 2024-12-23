@@ -11,7 +11,7 @@
 (defn interpolatio-fun [s & args]
   (format s args))
 
-(interpolatio-fun "Hello, %s, %s" "world" "world") ;; cannot execute but with one parameter is good
+;; (interpolatio-fun "Hello, %s, %s" "world" "world") ;; cannot execute but with one parameter is good
 
 (interpolation "Hello, %s, %s" "world" "world")
 
@@ -36,7 +36,7 @@
     (catch Exception e (println (.getMessage e)))))
 
 ;; This macro is supposed to be used for inline function calling without binding name for macro produced function
-(def validation-cache (atom {}))
+(defonce validation-cache (atom {}))
 (set-validator! validation-cache #(<= (count %) 3))
 
 
@@ -169,7 +169,7 @@
 
 ;; ------------------Type validator--------------
 (defmacro type-validation [expected-type]
-  (if (= (type expected-type) java.lang.Class)
+  (if (class? (resolve expected-type))
     `(fn [~'value]
        (try (instance? ~expected-type ~'value)
             (catch Exception ~'e
@@ -190,21 +190,22 @@
 ;; ----------------------Date before validator--------------
 (defmacro date-before-validation [before-date]
   `(fn [~'value]
-     (try (let [~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd")  (str ~'value))]
+     (try (let [~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd")  (str ~'value))
+                ~'parsed-before-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd") ~before-date)]
             (and ~'parsed-date
-                 (.before ~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd") ~before-date))))
+                 (.before ~'parsed-date ~'parsed-before-date)))
           (catch Exception ~'e
             (throw (IllegalArgumentException.
-                    "Testing value is not correct, date in format 'yyy-MM-dd'"))))))
+                    "Date has to be in format 'yyyy-MM-dd'"))))))
 
 
 ;; ----------------------Date after validator--------------
 (defmacro date-after-validation [after-date]
   `(fn [~'value]
-     (try (let [~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd")  (str ~'value))]
+     (try (let [~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd")  (str ~'value))
+                ~'parsed-after-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd") ~after-date)]
             (and ~'parsed-date
-                 (.after ~'parsed-date (.parse (java.text.SimpleDateFormat. "yyyy-MM-dd") ~after-date))))
+                 (.after ~'parsed-date ~'parsed-after-date)))
           (catch Exception ~'e
             (throw (IllegalArgumentException.
-                    "Testing value is not correct, date in format 'yyyy-MM-dd'"))))))
-
+                    "Date has to be in format 'yyyy-MM-dd'"))))))
