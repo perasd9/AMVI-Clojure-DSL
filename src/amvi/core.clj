@@ -7,11 +7,11 @@
   "Macro for formatting string s with args forwarded to s"
   `(format ~s ~@args))
 
-;; Function made to show that evaluation without macro cannot do what evaluation with macro can
+;; Function made to show that evaluation without macro cannot do what evaluation with macro can, beside that we have to use apply higher-order function
 (defn interpolatio-fun [s & args]
-  (format s args))
+  (apply format s args))
 
-;; (interpolatio-fun "Hello, %s, %s" "world" "world") ;; cannot execute but with one parameter is good
+(interpolatio-fun "Hello, %s, %s" "world" "world") ;; cannot execute without apply
 
 (interpolation "Hello, %s, %s" "world" "world")
 
@@ -115,6 +115,7 @@
         (throw
          (IllegalArgumentException.
           (interpolation "Input parameters must be numbers'number-range-validation': (%s)" ~min-value))))))
+
   ([min-value max-value]
    (if (and (number? min-value) (number? max-value) (> max-value min-value))
      `(fn [~'value]
@@ -127,6 +128,7 @@
         (throw
          (IllegalArgumentException.
           (interpolation "Input parameters must be numbers and 'max-value' must be greater than 'min-value' in macro 'number-range-validation': (%s, %s)" ~min-value ~max-value))))))
+
   ([min-length max-length & _]
    `(do
       (throw
@@ -146,13 +148,14 @@
 
 ;; ----------------Regex validator--------------------
 (defmacro regex-validation [pattern]
-  (if (= (type pattern) java.util.regex.Pattern)
+  (if (instance? java.util.regex.Pattern pattern)
     `(fn [~'value]
-       (not (nil? (re-matches ~pattern (str ~'value)))))
-    `(do
-       (throw
-        (IllegalArgumentException.
-         "Input parameter must be a regex expression in macro 'regex-validation'")))))
+       (if (not (nil? ~'value))
+         (not (nil? (re-matches ~pattern (str ~'value))))
+         (throw (IllegalArgumentException.
+                 "Value cannot be nil for regex validation"))))
+    `(throw (IllegalArgumentException.
+             "Input parameter must be a valid regex pattern in 'regex-validation'"))))
 
 
 ;; ------------------Unique making validator------------------
