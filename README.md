@@ -6,9 +6,9 @@ This project involves the development of a domain-specific language (DSL) in the
 
 - **String Interpolation:** The project introduces macros that allow string interpolation without needing to call the `str` function. It simplifies string formatting, making it more intuitive and readable for developers.
 
-```bash
-    (interpolation "Hello, %s, %s" "world" "world")
-```
+  ```bash
+  (interpolation "Hello, %s, %s" "world" "world")
+  ```
 
 - **Custom Validation Macros:** The DSL defines several macros for creating custom validation functions with multiple rules. It handles caching to optimize performance and ensure that repeated validation checks on the same values don't cause unnecessary recalculations.
 
@@ -54,12 +54,11 @@ This project involves the development of a domain-specific language (DSL) in the
     (date-before-validation "2025-01-01")
     ```
 
-- **Caching Mechanism:** The DSL uses an atom-based cache (`validation-cache`) to store results of previously computed validations. This optimizes performance, particularly when the same validation is applied multiple times on identical values.
-  Part of macros for using cache:
+- **Caching Mechanism:** The DSL uses an atom-based cache (`validation-cache`) to store results of previously computed validations. This optimizes performance, particularly when the same validation is applied multiple times on identical values. Part of macros for using cache:
 
-      ```bash
-      (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
-      ```
+  ```bash
+  (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
+  ```
 
 - **Error Handling:** The macros ensure that invalid input or incorrect usage of parameters triggers informative error messages.
 
@@ -76,7 +75,9 @@ This validation DSL is designed for use in a variety of contexts, particularly w
 ## Example Usage
 
 ```bash
-(def values [{:name "apple" :expiration "2025-02-14"} {:name "banana" :expiration "2025-03-11"} {:name "kiwi" :expiration "2025-10-23"}])
+(def values [{:name "apple" :expiration "2025-02-14"}
+             {:name "banana" :expiration "2025-03-11"}
+             {:name "kiwi" :expiration "2025-10-23"}])
 
 (let [validate-date (def-validation-inline [(date-before-validation "2026-01-01")])
       validate-length (def-validation-inline [(not-nil-validation) (length-validation 5 10)])]
@@ -85,7 +86,15 @@ This validation DSL is designed for use in a variety of contexts, particularly w
 
 ## Future Improvements
 
-Mainly idea of this project is making a DSL with strong macro system of Clojure(system extended from Lisp), considering all built-in validators are macros expanding this DSL is more than easy. All you need to do is making your own macro custom validator for concrete purpose and using that validator as parameter in macros `def-validation` or similar.
+Mainly idea of this project is making a DSL with strong macro system of Clojure(system extended from Lisp), considering all built-in validators are macros expanding this DSL is more than easy. All you need to do is making your own macro custom validator for concrete purpose and using that validator as parameter in macros `def-validation` or similar. Another possible improvements:
 
 - **Enhanced Caching:** Improving the caching mechanism by introducing cache expiration or limiting cache size could further optimize performance for large-scale applications.
 - **Expanded Validators:** Adding additional validators for more complex use cases (URL validation, password strength validation, etc.) could make the DSL even more flexible.
+
+## Testing
+
+This is my first experience working with TDD (Test Driven Development) as approach in development, and during the development of this validating tool, I used the Midje library for unit testing, simultaneously implementing features and testing them.
+
+## Benchmark
+
+Regarding measurements of performance I did comparison about cached validations. We can say that macro which used cache as mechanism has provided better performance. In this project I have used Criterium library for performance testing.
