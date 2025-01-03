@@ -98,3 +98,13 @@ This is my first experience working with TDD (Test Driven Development) as approa
 ## Benchmark
 
 Regarding measurements of performance I did comparison about cached validations. We can say that macro which used cache as mechanism has provided better performance. In this project I have used Criterium library for performance testing.
+
+## Finish
+
+Address a common challenge in data processing – the need for efficient and reusable data validation. In many real-world applications, validating data before processing is crucial to ensure accuracy and integrity. Recognizing this need, I decided to create a Domain-Specific Language (DSL) in Clojure, aimed at simplifying and streamlining the process of validating different types of data inputs.
+
+Through extensive research and experimentation with Clojure's powerful macro system, I was able to develop a suite of validation tools that are both flexible and efficient. What initially seemed like a simple task grew into a more involved development process, as I realized the importance of correct macro structuring and the need for reusable, easily integrable validation rules.
+
+Gained valuable insights into Clojure’s unique strengths, particularly its ability to extend functionality through macros. By focusing on solving a real-world problem in data processing, I didn't only learn a lot about Clojure but also created a practical tool that can help streamline data validation tasks(surely not correct and flexible as well as already well known solutions but tried) in various applications.
+
+Looking ahead, I am excited about the potential to expand and improve this DSL, particularly in the areas of optimization and adding more complex validation rules. I also hope to continue exploring how Clojure can be applied in other domains, such as AI and development of compilers, transpilers..., where its flexibility and power could be further leveraged. Also, macro system in clojure unlike in C or other languages is really above all of them and I am sure I haven't even scratched the surface.
