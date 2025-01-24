@@ -113,7 +113,7 @@ Looking ahead, I am excited about the potential to expand and improve this DSL, 
 
 We are going to use the AMVI DSL for data validation(filtering, processing) in a demo application involving a dataset of car seats. This example demonstrates how to integrate AMVI into a real-world data processing pipeline(accent is not on this decision tree demo).
 
-**Data Validation Using AMVI**
+**Data Validation Using AMVI**:
 Now that the data is ready, we can apply AMVI for validation. Let's define some validation rules for fields like `Price`, `Age`, and `Urban`(urban is excluded becuase of limitation of DT library I found). If you are asking why this data filtering there is no explicit reason, idea is just to show how you can just filter, valid data:
 
 ```bash
