@@ -4,8 +4,9 @@
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [clojure.spec.alpha :as spec]
-            [amvi.core :as amvi]
-            [decision-tree.core :as dt]))
+            [amvi.core :refer :all]
+            [decision-tree.core :as dt]
+            [malli.core :as m]))
 
 
 (defn load-csv [f]
@@ -21,7 +22,7 @@
 (def data-set-without-header (vec (rest carseats)))
 
 
-;; Removing strings due to limt of decision tree library
+;; Removing strings due to limt of decision tree library, I know some vars can be converted like ShelveLoc for graduation of bad, medium, good(1 2 3 or 0 1 2 ...)
 (defn parse-carseat [carseat]
   (let [sales (Double/parseDouble (nth carseat 0))
         comp-price (Integer/parseInt (nth carseat 1))
@@ -50,15 +51,13 @@
 
 ;; -------------Usage of AMVI (DSL library) for data processing-----------------
 (defn validate-carseat [carseat]
-  (let [validate-price (amvi/def-validation-inline [(amvi/number-range-validation 1 95)])
-        validate-age (amvi/def-validation-inline [(amvi/number-range-validation 0 120)])
-        validate-urban (amvi/def-validation-inline [(amvi/regex-validation #"No")])
+  (let [validate-price (def-validation-inline [(number-range-validation 1 95)])
+        validate-age (def-validation-inline [(number-range-validation 0 120)])
+        validate-urban (def-validation-inline [(regex-validation #"No")])
         price (:Price carseat)
-        age (:Age carseat)
-        urban (:Urban carseat)]
+        age (:Age carseat)]
     (and (validate-price price)
-         (validate-age age)
-         (validate-urban urban))))
+         (validate-age age))))
 
 (def valid-carseats-amvi (filterv #(validate-carseat %) data-set))
 
@@ -85,7 +84,34 @@
 (def valid-carseats-spec (filterv #(validate-carseat %) data-set))
 ;; ---------------------------------------------------------------------------
 
-(count valid-carseats-spec)
+
+;; ---------------------Usage of clojure.malli (library) for data processing--------------------------
+(def number-range-validation-malli
+  (m/schema
+   [:and [:int {:min 1, :max 95}]]))
+
+(def length-validation-malli
+  (m/schema [:string {:min 0, :max 120}]))
+
+(def regex-validation-malli
+  (m/schema [:string {:regex #"No"}]))
+
+;; Composite validation schema with multiple mapped fields
+(def carseat-validation-schema
+  [:map
+   [:Price number-range-validation]
+   [:Age number-range-validation]])
+
+
+(defn validate-carseat [carseat]
+  (let [validate-price (m/validate number-range-validation-malli (:Price carseat))
+        validate-age (m/validate number-range-validation-malli (:Age carseat))]
+    (and validate-price validate-age)))
+
+(def valid-carseats-malli (filterv #(validate-carseat %) data-set))
+;; -------------------------------------------------------------------------
+
+(count valid-carseats-malli)
 
 ;; Calculating total sum of input Sales variable, after that calculating mean value dividing over count
 (defn total [vector]
@@ -178,7 +204,7 @@
     (println "Recall:" recall)
     (println "F1:" f1)))
 
-(def actual (mapv #(:HighSales %)  (:test data)))
+(def actual (mapv #(:HighSales %) (:test data)))
 
 
 (compute-eval-metrics actual predictions)

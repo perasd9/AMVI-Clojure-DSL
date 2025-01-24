@@ -108,3 +108,74 @@ Through extensive research and experimentation with Clojure's powerful macro sys
 Gained valuable insights into Clojure’s unique strengths, particularly its ability to extend functionality through macros. By focusing on solving a real-world problem in data processing, I didn't only learn a lot about Clojure but also created a practical tool that can help streamline data validation tasks(surely not correct and flexible as well as already well known solutions but tried) in various applications.
 
 Looking ahead, I am excited about the potential to expand and improve this DSL, particularly in the areas of optimization and adding more complex validation rules. I also hope to continue exploring how Clojure can be applied in other domains, such as AI and development of compilers, transpilers..., where its flexibility and power could be further leveraged. Also, macro system in clojure unlike in C or other languages is really above all of them and I am sure I haven't even scratched the surface.
+
+## Demo Usage
+
+We are going to use the AMVI DSL for data validation(filtering, processing) in a demo application involving a dataset of car seats. This example demonstrates how to integrate AMVI into a real-world data processing pipeline(accent is not on this decision tree demo).
+
+**Data Validation Using AMVI**
+Now that the data is ready, we can apply AMVI for validation. Let's define some validation rules for fields like `Price`, `Age`, and `Urban`(urban is excluded becuase of limitation of DT library I found). If you are asking why this data filtering there is no explicit reason, idea is just to show how you can just filter, valid data:
+
+```bash
+(defn validate-carseat [carseat]
+  (let [validate-price (def-validation-inline [(number-range-validation 1 95)])
+        validate-age (def-validation-inline [(number-range-validation 0 120)])
+        validate-urban (def-validation-inline [(regex-validation #"No")])
+        price (:Price carseat)
+        age (:Age carseat)]
+    (and (validate-price price)
+         (validate-age age))))
+```
+
+**Comparing AMVI with Other Libraries**
+
+**Using** `clojure.spec`:
+`clojure.spec` is a library for data validation and specification. It allows for declarative validation, making it easier to define constraints. However, compared to AMVI, it is less focused on creating custom validation logic in a concise and reusable manner. In the example below, spec is used for price and age validation(also urban bud it still isn't used onward):
+
+```bash
+(spec/def ::price (spec/and integer? #(<= 1 % 95)))
+(spec/def ::age (spec/and integer? #(<= 0 % 120)))
+(spec/def ::urban (spec/and string? #(contains? #{"No"} %)))
+
+(defn validate-carseat [carseat]
+  (let [price (:Price carseat)
+        age (:Age carseat)
+        urban (:Urban carseat)]
+    (and (spec/valid? ::price price)
+         (spec/valid? ::age age))))
+```
+
+**Using** `malli`:
+`malli` is another schema library that offers more powerful features than spec, particularly for schema validation. However, its syntax and usage can be more verbose compared to AMVI's DSL. Here is how malli is used for validation:
+
+```bash
+(def number-range-validation-malli
+  (m/schema
+   [:and [:int {:min 1, :max 95}]]))
+
+(def length-validation-malli
+  (m/schema [:string {:min 0, :max 120}]))
+
+(def regex-validation-malli
+  (m/schema [:string {:regex #"No"}]))
+
+;; Composite validation schema with multiple mapped fields
+(def carseat-validation-schema
+  [:map
+   [:Price number-range-validation]
+   [:Age number-range-validation]])
+
+
+(defn validate-carseat [carseat]
+  (let [validate-price (m/validate number-range-validation-malli (:Price carseat))
+        validate-age (m/validate number-range-validation-malli (:Age carseat))]
+    (and validate-price validate-age)))
+```
+
+At the end you can use filter higher order function to just filter all data you need or you don't.
+
+```bash
+(def valid-carseats-amvi (filterv #(validate-carseat %) data-set))
+```
+
+If you can proceed efficient cache using in AMVI library you can also define your `validation-cache` atom or have them with input arguments(otherwise just refer :all and you will use once defined atom for caching which is giving you felxibility of modification AMVI), analyze source code of AMVI.

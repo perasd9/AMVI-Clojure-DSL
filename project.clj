@@ -7,6 +7,7 @@
                  [midje "1.10.10" :exclusions [org.clojure/clojure]]
                  [criterium "0.4.6"]
                  [org.clojure/data.csv "1.0.1"]
-                 [mrcsce/decision-tree "0.1.0"]]
+                 [mrcsce/decision-tree "0.1.0"]
+                 [metosin/malli "0.10.0"]]
   :repl-options {:init-ns amvi.core}
   :main amvi.core)

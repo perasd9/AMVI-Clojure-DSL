@@ -30,7 +30,6 @@
                  (if (= (count @~'validation-cache) 3)
                    (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
                  (do
-                   (Thread/sleep 100)
                    (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
                    (get @~'validation-cache (str ~'value "-" ~rule-key)))))))))
     (catch Exception e (println (.getMessage e)))))
@@ -52,7 +51,6 @@
                (if (= (count @~'validation-cache) 3)
                  (swap! ~'validation-cache dissoc ((first @~'validation-cache) 0)))
                (do
-                 (Thread/sleep 100)
                  (swap! ~'validation-cache assoc-in [(str ~'value "-" ~rule-key)] ~'result)
                  (get @~'validation-cache (str ~'value "-" ~rule-key))))))))
     (catch Exception e (println (.getMessage e)))))
@@ -62,7 +60,6 @@
   "Macro for making functions with combination of rules without binding vars."
   (try
     `(fn [~'value]
-       (Thread/sleep 100)
        (every? #(apply % [~'value]) ~rules))
     (catch Exception e (println (.getMessage e)))))
 
