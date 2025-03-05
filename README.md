@@ -180,7 +180,7 @@ At the end you can use filter higher order function to just filter all data you 
 
 If you can proceed efficient cache using in AMVI library you can also define your `validation-cache` atom or have them with input arguments(otherwise just refer :all and you will use once defined atom for caching which is giving you felxibility of modification AMVI), analyze source code of AMVI.
 
-## Analyze:
+## Analyze
 
 In `core_test.clj` at the bottom can be found quick-bench, performance testing used `AMVI`, `clojure.spec` and `malli` libraries in demo project. Regarding to results, here are the numbers:
 
