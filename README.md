@@ -179,3 +179,63 @@ At the end you can use filter higher order function to just filter all data you 
 ```
 
 If you can proceed efficient cache using in AMVI library you can also define your `validation-cache` atom or have them with input arguments(otherwise just refer :all and you will use once defined atom for caching which is giving you felxibility of modification AMVI), analyze source code of AMVI.
+
+## Analyze:
+
+In `core_test.clj` at the bottom can be found quick-bench, performance testing used `AMVI`, `clojure.spec` and `malli` libraries in demo project. Regarding to results, here are the numbers:
+
+- `AMVI`: 228.2 ns
+- `clojure.spec`: 195.5 ns
+- `malli`: 184.1 ns
+
+We can see that difference is minimal, from the subjective perspective maybe even negligible. One important aspect is that we don't have any "expensive" validation in our demo so caching mechanism affect nothing here.
+
+By the other aspects, we can make some conclusions on advatanges and disadvantages in compared libraries.
+
+**AMVI**
+
+Advantages:
+
+- Simple Syntax: Using macros such as `def-validation`, `def-validation-inline`, and `def-validation-inline-without-cache` allows for quick definition of validations with minimal effort. The code is clean and easy to read, which helps developers who want a quick and simple validation implementation.
+
+- Highly Flexible: By leveraging Clojure macros, AMVI enables the creation of user-defined validations with ease. Users can add new types of validations with minimal effort, making the library easily extendable.
+
+- Performance Optimization (Caching): AMVI implements a caching mechanism that significantly improves performance when repeatedly validating the same values. This is particularly useful in applications with large data volumes where validation is frequent.
+
+- Adaptability and Readability: Using inline validations (such as def-validation-inline) makes it easier to integrate validations into the code without needing to create excessive helper functions.
+
+Disadvantages:
+
+- Limited Built-in Validations: Although AMVI allows users to easily add their own validations, the initial set of built-in validations (e.g., for types, lengths, regex) may be limited compared to other libraries like clojure.spec and malli.
+
+- Clojure-Specific: AMVI is specific to Clojure, meaning that users unfamiliar with the language might face a learning curve. Also, if one wanted to apply the same logic in another programming language, they would have to implement a similar tool from scratch.
+
+**clojure.spec**
+
+Advantages:
+
+- Declarative Approach: clojure.spec uses a declarative syntax to define validations, which means users can clearly define what is valid for a given data type. This is helpful when precise control over validation rules is needed.
+
+- Integration with Testing Frameworks: clojure.spec easily integrates with testing frameworks and allows the use of generative tests. This is useful for automatically generating test data and testing validations.
+
+- Wide Adoption: As the official library in Clojure, clojure.spec is well-documented and widely used in the community, meaning it has a good ecosystem and many resources for learning.
+
+Disadvantages:
+
+- More Complex Syntax: clojure.spec uses a specific language construct to define validations that may be less intuitive and harder to use compared to simpler macro approaches like AMVI.
+
+- Less Flexible for Custom User-Defined Validations: While clojure.spec allows defining complex validations, developing new custom validations may require a deeper understanding of the internal implementation of clojure.spec.
+
+**malli**
+
+Advantages:
+
+- Speed and Efficiency: Malli is known for being very fast and efficient when validating large datasets, especially compared to clojure.spec. Its primary focus is on performance optimization, which makes it useful for applications with large data volumes.
+
+- Easily Extendable: Malli also uses a declarative approach, but focuses on simplicity and quick implementation. Adding new validations is relatively simple and syntactically clear.
+
+Diadvantages:
+
+- Also More Complicated Syntax: Compared to AMVI, Malli’s syntax can be a bit harder to read, especially when used for more complex validations. Users must define schemas with specific parameters, which can make the code harder to manage in larger projects.
+
+- Less Flexible than AMVI for Inline Validations: Malli is not focused on enabling inline validations like AMVI.
